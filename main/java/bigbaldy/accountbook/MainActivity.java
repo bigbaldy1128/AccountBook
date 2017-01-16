@@ -19,11 +19,10 @@ public class MainActivity extends AppCompatActivity {
     final static String TAG = "MainActivity";
     EditText editText;
     TextView textView;
-    private long days=0;
-    long getDays()
-    {
-        if(days==0)
-        {
+    private long days = 0;
+
+    long getDays() {
+        if (days == 0) {
             SharedPreferences pref = getSharedPreferences("data", MODE_PRIVATE);
             String date = pref.getString("date", "");
             Date now = new Date();
@@ -31,7 +30,8 @@ public class MainActivity extends AppCompatActivity {
                 SharedPreferences.Editor editor = pref.edit();
                 editor.putString("date", sdf.format(now));
                 editor.commit();
-                return 1;
+                days = 1;
+                return days;
             }
             Date start = null;
             try {
@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             long diff = now.getTime() - start.getTime();
-            days= diff / (1000 * 60 * 60 * 24) + 1;
+            days = diff / (1000 * 60 * 60 * 24) + 1;
         }
         return days;
     }
@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         editText = (EditText) findViewById(R.id.editText);
         textView = (TextView) findViewById(R.id.textView);
         SharedPreferences pref = getSharedPreferences("data", MODE_PRIVATE);
-        float total = pref.getFloat("total", 0.0f);
+        float total = pref.getFloat("total", 0.00f);
         textView.setText(String.format("%.2f", total) + "￥ - " + this.getDays() + "days");
     }
 
@@ -60,14 +60,15 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
         editor.putFloat("total", 0.0f);
         editor.putString("date", sdf.format(new Date()));
+        days = 1;
         editor.commit();
-        textView.setText(String.valueOf(0.0f) + "￥ - 1Days");
+        textView.setText(String.valueOf(0.00f) + "￥ - 1Days");
     }
 
     public void onClick_record(View view) {
         try {
             SharedPreferences pref = getSharedPreferences("data", MODE_PRIVATE);
-            float total = pref.getFloat("total", 0.0f);
+            float total = pref.getFloat("total", 0.00f);
 
             float value = Float.valueOf(editText.getText().toString());
             total += value;
