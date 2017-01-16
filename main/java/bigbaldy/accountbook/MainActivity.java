@@ -19,6 +19,31 @@ public class MainActivity extends AppCompatActivity {
     final static String TAG = "MainActivity";
     EditText editText;
     TextView textView;
+    private long days=0;
+    long getDays()
+    {
+        if(days==0)
+        {
+            SharedPreferences pref = getSharedPreferences("data", MODE_PRIVATE);
+            String date = pref.getString("date", "");
+            Date now = new Date();
+            if (date == null || date.length() == 0) {
+                SharedPreferences.Editor editor = pref.edit();
+                editor.putString("date", sdf.format(now));
+                editor.commit();
+                return 1;
+            }
+            Date start = null;
+            try {
+                start = sdf.parse(date);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            long diff = now.getTime() - start.getTime();
+            days= diff / (1000 * 60 * 60 * 24) + 1;
+        }
+        return days;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,15 +53,15 @@ public class MainActivity extends AppCompatActivity {
         textView = (TextView) findViewById(R.id.textView);
         SharedPreferences pref = getSharedPreferences("data", MODE_PRIVATE);
         float total = pref.getFloat("total", 0.0f);
-        textView.setText(String.format("%.2f", total) + "￥ - " + getDays() + "Days");
+        textView.setText(String.format("%.2f", total) + "￥ - " + this.getDays() + "days");
     }
 
     public void onClick_reset(View view) {
         SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
         editor.putFloat("total", 0.0f);
-        editor.putString("date",sdf.format(new Date()));
+        editor.putString("date", sdf.format(new Date()));
         editor.commit();
-        textView.setText(String.valueOf(0.0f) + "￥ - " + getDays() + "Days");
+        textView.setText(String.valueOf(0.0f) + "￥ - 1Days");
     }
 
     public void onClick_record(View view) {
@@ -50,30 +75,16 @@ public class MainActivity extends AppCompatActivity {
             editor.putFloat("total", total);
             editor.commit();
 
-            textView.setText(String.format("%.2f", total) + "￥ - " + getDays() + "Days");
+            textView.setText(String.format("%.2f", total) + "￥ - " + this.getDays() + "days");
             editText.setText("");
         } catch (Exception ex) {
             Log.e(TAG, ex.getMessage());
         }
     }
 
-    private long getDays() {
-        SharedPreferences pref = getSharedPreferences("data", MODE_PRIVATE);
-        String date = pref.getString("date", "");
-        Date now = new Date();
-        if(date==null || date.length()==0) {
-            SharedPreferences.Editor editor = pref.edit();
-            editor.putString("date",sdf.format(now));
-            editor.commit();
-            return 1;
-        }
-        Date start = null;
-        try {
-            start = sdf.parse(date);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        long diff = now.getTime() - start.getTime();
-        return diff / (1000 * 60 * 60 * 24) + 1;
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        System.exit(0);
     }
 }
